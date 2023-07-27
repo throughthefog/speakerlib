@@ -1,3 +1,5 @@
+--PLEASE do not use this program
+--its only included as it shows stereo more clearly
 local speakerlib = require("speakerlib")
 --song url
 local args = {...}
