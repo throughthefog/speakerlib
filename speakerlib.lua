@@ -1,6 +1,66 @@
 local speakerlib = {}
 local dfpwm = require("cc.audio.dfpwm")
 
+--Speaker configuration
+settings.define("audio.left",{
+	description = "Table containing network IDs of the left channel speakers",
+	default = {},
+	type = "table"
+})
+settings.define("audio.right",{
+	description = "Table containing network IDs of the right channel speakers",
+	default = {},
+	type = "table"
+})
+
+local ls = settings.get("audio.left")
+local rs = settings.get("audio.right")
+local function addLeftSpeaker(speaker)
+	table.insert(ls,speaker)
+	settings.set("audio.left",ls)
+	settings.save()
+end
+local function addRightSpeaker(speaker)
+	table.insert(rs,speaker)
+	settings.set("audio.right",rs)
+	settings.save()
+end
+local function getLeftSpeakers()
+	return settings.get("audio.left")
+end
+local function getRightSpeakers()
+	return settings.get("audio.right")
+end
+local function removeleftSpeaker(speaker)
+	for i,v in pairs(ls) do
+		if v == speaker then
+			table.remove(ls,i)
+			settings.set("audio.left",ls)
+			settings.save()
+			return true
+		end
+	end
+	return false
+end
+local function removeRightSpeaker(speaker)
+	for i,v in pairs(rs) do
+		if v == speaker then
+			table.remove(rs,i)
+			settings.set("audio.right",rs)
+			settings.save()
+			return true
+		end
+	end
+	return false
+end
+local function resetSpeakerTables()
+	ls = {}
+	rs = {}
+	settings.set("audio.left",ls)
+	settings.set("audio.right",rs)
+	settings.save()
+end
+
 --Mono/Left
 local buffer = nil
 local function speakerFuncMono(speaker,volume)
@@ -65,6 +125,12 @@ end
 
 local function getStereoFunctions(leftSpeakers, rightSpeakers, volume)
 	local speakers = {}
+	if leftSpeakers == nil or leftSpeakers == {} then
+		leftSpeakers = ls
+	end
+	if rightSpeakers == nil or rightSpeakers == {} then
+		rightSpeakers = rs
+	end
 	for i,v in pairs(leftSpeakers) do
 		table.insert(speakers,function()
 			speakerFuncMono(peripheral.wrap(v),volume)
@@ -79,7 +145,7 @@ local function getStereoFunctions(leftSpeakers, rightSpeakers, volume)
 end
 
 local function setStereoBuffers(leftbuffer, rightbuffer)
-	if leftbuffer and rightSpeakers then
+	if leftbuffer and rightbuffer then
 		buffer = leftbuffer
 		buffer1 = rightbuffer
 	else
@@ -159,5 +225,44 @@ speakerlib.isMdiskPresent = isMdiskPresent
 speakerlib.getSongMetadata = getSongMetadata
 speakerlib.isMdiskStereo = isMdiskStereo
 
+speakerlib.addLeftSpeaker = addLeftSpeaker
+speakerlib.addRightSpeaker = addRightSpeaker
+speakerlib.getLeftSpeakers = getLeftSpeakers
+speakerlib.getRightSpeakers = getRightSpeakers
+speakerlib.removeleftSpeaker = removeleftSpeaker
+speakerlib.removeRightSpeaker = removeRightSpeaker
+speakerlib.resetSpeakerTables = resetSpeakerTables
+
+if not pcall(debug.getlocal, 4, 1) then
+	local args = {...}
+	if args[1] == "add" then
+		if args[2] == "left" then
+			addLeftSpeaker(args[3])
+			error("added speaker",0)
+		elseif args[2] == "right" then
+			addRightSpeaker(args[3])
+			error("added speaker",0)
+		end
+	elseif args[1] == "remove" then
+		if args[2] == "left" then
+			if removeleftSpeaker(args[3]) then
+				error("removed speaker",0)
+			else
+				error("speaker not found",0)
+			end
+		elseif args[2] == "right" then
+			if removeRightSpeaker(args[3]) then
+				error("removed speaker",0)
+			else
+				error("speaker not found",0)
+			end
+		end
+	elseif args[1] == "reset" then
+		resetSpeakerTables()
+		error("speaker config reset",0)
+	else
+		error("speakerlib must be called from another program!",0)
+	end
+end
 
 return speakerlib
