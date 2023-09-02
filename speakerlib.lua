@@ -79,7 +79,7 @@ local function getStereoFunctions(leftSpeakers, rightSpeakers, volume)
 end
 
 local function setStereoBuffers(leftbuffer, rightbuffer)
-	if leftbuffer and rightSpeakers then
+	if leftbuffer and rightbuffer then
 		buffer = leftbuffer
 		buffer1 = rightbuffer
 	else
