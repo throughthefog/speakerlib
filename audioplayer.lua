@@ -9,7 +9,7 @@ if speakerlib.isMdiskPresent() then
 	print(meta.song)
 	print(meta.artist.." - "..meta.album.." ("..meta.year..")")
 	if speakerlib.isMdiskStereo() then
-		speakerlib.playDfpwmStereo("disk/left.dfpwm", "disk/right.dfpwm", {"left"}, {"right"}, volume)
+		speakerlib.playDfpwmStereo("disk/left.dfpwm", "disk/right.dfpwm", {}, {}, volume)
 	else
 		speakerlib.playDfpwmMono("disk/left.dfpwm", volume)
 	end
