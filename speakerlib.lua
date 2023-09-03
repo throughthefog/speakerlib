@@ -125,6 +125,7 @@ end
 
 local function getStereoFunctions(leftSpeakers, rightSpeakers, volume)
 	local speakers = {}
+	local speakers1 = {}
 	if leftSpeakers == nil or leftSpeakers == {} then
 		leftSpeakers = ls
 	end
@@ -135,13 +136,19 @@ local function getStereoFunctions(leftSpeakers, rightSpeakers, volume)
 		table.insert(speakers,function()
 			speakerFuncMono(peripheral.wrap(v),volume)
 		end)
+		table.insert(speakers1,function()
+			peripheral.wrap(v).stop()
+		end)
 	end
 	for i,v in pairs(rightSpeakers) do
 		table.insert(speakers,function()
 			speakerFuncRight(peripheral.wrap(v),volume)
 		end)
+		table.insert(speakers1,function()
+			peripheral.wrap(v).stop()
+		end)
 	end
-	return speakers
+	return speakers, speakers1
 end
 
 local function setStereoBuffers(leftbuffer, rightbuffer)
